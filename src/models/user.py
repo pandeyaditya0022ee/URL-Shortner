@@ -14,4 +14,4 @@ class UserModel(Base):
     
     
     
-    urls = relationship("UrlModel",back_populates="urls")
+    urls = relationship("UrlModel",back_populates="user")

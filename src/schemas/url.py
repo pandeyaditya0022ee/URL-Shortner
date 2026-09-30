@@ -15,3 +15,9 @@ class UrlResponseSchema(BaseModel):
     created_at: datetime
     expires_at: datetime | None
     is_active: bool
+    user_id : int
+    
+    
+class UrlAnalyticsSchema(BaseModel):
+    url_id: int
+    total_clicks: int

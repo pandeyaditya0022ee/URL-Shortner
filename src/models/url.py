@@ -14,4 +14,4 @@ class UrlModel(Base):
     is_active = Column(Boolean,nullable=False,default=True)
     
     user_id = Column(Integer,ForeignKey ("user_table.id",ondelete="CASCADE"),nullable=False)
-    user = relationship("UserModel",back_populates="user")
+    user = relationship("UserModel",back_populates="urls")

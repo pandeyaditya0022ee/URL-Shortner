@@ -1,0 +1,36 @@
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy.orm import Session
+import jwt
+
+from src.utils.db import get_db
+from src.utils.security import verify_jwt_token
+from src.models.user import UserModel
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+
+
+
+
+
+
+
+
+def is_authenticated(token : str = Depends(oauth2_scheme),db:Session = Depends(get_db)):
+    try:
+        payload = verify_jwt_token(token)
+        user_id = int(payload.get("sub"))
+        
+        if not user_id:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="User Not Found")
+        
+        user_id = int(user_id)
+        user : UserModel = db.query(UserModel).filter(UserModel.id == user_id).first()
+        
+        if not user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="User Not Found")
+        
+        return user
+    
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Invalid Token")
