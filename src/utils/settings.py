@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     DB_CONNECTION: str
     SECRET_KEY : str
     ALGORITHM : str
-
+    TEST_DB_CONNECTION : str
     EXPIRATION_TIME : int
     
 

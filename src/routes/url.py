@@ -8,7 +8,7 @@ from src.models.user import UserModel
 
 from src.services import url_service
 from typing import List
-from src.utils.dependencies import is_authenticated
+from src.utils.dependencies import is_authenticated,rate_limit
 url_router = APIRouter(prefix="/url")
 
 
@@ -17,8 +17,8 @@ def create_url(body : UrlSchema,db : Session = Depends(get_db),user: UserModel =
     return url_service.create_url(body,db,user)
     
 
-@url_router.get("/redirect/{short_code}",status_code=status.HTTP_200_OK)
-def redirect_url(short_code : str,db : Session = Depends(get_db),user: UserModel = Depends(is_authenticated)):
+@url_router.get("/redirect/{short_code}",status_code=status.HTTP_307_TEMPORARY_REDIRECT)
+def redirect_url(short_code : str,db : Session = Depends(get_db),user: UserModel = Depends(is_authenticated),_ : None = Depends(rate_limit)):
     url = url_service.redirect_url(short_code,db,user)
     
     return RedirectResponse(url=url)

@@ -6,12 +6,11 @@ import jwt
 from src.utils.db import get_db
 from src.utils.security import verify_jwt_token
 from src.models.user import UserModel
+from fastapi import Request, HTTPException, status
+from src.utils.redis_client import redis_client
+
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
-
-
-
-
 
 
 
@@ -34,3 +33,21 @@ def is_authenticated(token : str = Depends(oauth2_scheme),db:Session = Depends(g
     
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Invalid Token")
+    
+    
+
+def rate_limit(request: Request):
+    ip = request.client.host
+
+    key = f"rate_limit:{ip}"
+
+    count = redis_client.incr(key)
+
+    if count == 1:
+        redis_client.expire(key, 60)
+
+    if count > 10:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many requests"
+        )

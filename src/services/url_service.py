@@ -4,9 +4,11 @@ from src.schemas.url import UrlSchema
 from src.models.url import UrlModel
 from src.models.user import UserModel
 from src.models.click import ClickModel
+from src.utils.redis_client import redis_client
 from fastapi import HTTPException, status, Query
 from datetime import datetime
 from sqlalchemy.exc import IntegrityError
+import json
 
 
 def get_short_code(db: Session):
@@ -54,26 +56,58 @@ def create_url(body: UrlSchema, db: Session, user: UserModel):
 
 
 def redirect_url(short_code: str, db: Session, user: UserModel):
-    data: UrlModel = (
-        db.query(UrlModel).filter(UrlModel.short_code == short_code).first()
-    )
+    key = f"url:{short_code}"
+    raw_data = redis_client.get(key)
 
-    if not data:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Url Not Found........."
+    if raw_data:
+        cached_url = json.loads(raw_data)
+        
+        if cached_url["is_active"] is False:
+            raise HTTPException(
+                status_code=status.HTTP_410_GONE,
+                detail="Url is No Longer Active.........",
+            )
+        if cached_url["expires_at"] is not None:
+            expire = datetime.fromisoformat(cached_url["expires_at"])
+            if expire < datetime.now():
+                raise HTTPException(
+                    status_code=status.HTTP_410_GONE, detail="Url is expired......"
+            )
+
+    else:
+        data: UrlModel = (
+            db.query(UrlModel).filter(UrlModel.short_code == short_code).first()
         )
 
-    if data.is_active is False:
-        raise HTTPException(
-            status_code=status.HTTP_410_GONE, detail="Url is No Longer Active........."
-        )
+        if not data:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Url Not Found........."
+            )
 
-    if data.expires_at is not None and data.expires_at < datetime.now():
-        raise HTTPException(
-            status_code=status.HTTP_410_GONE, detail="Url is expired......"
-        )
+        if data.is_active is False:
+            raise HTTPException(
+                status_code=status.HTTP_410_GONE,
+                detail="Url is No Longer Active.........",
+            )
 
-    click_data = ClickModel(url_id=data.id)
+        if data.expires_at is not None and data.expires_at < datetime.now():
+            raise HTTPException(
+                status_code=status.HTTP_410_GONE, detail="Url is expired......"
+            )
+
+        cached_url = {
+                "id": data.id,
+                "original_url": data.original_url,
+                "is_active": data.is_active,
+                "expires_at":  data.expires_at.isoformat() if data.expires_at else None,
+            }
+        dic = json.dumps(cached_url)
+        redis_client.set(
+            key,dic,
+            ex=60 * 5,
+        )  # remain in cache for 5 min
+
+    click_data = ClickModel(url_id=cached_url["id"])
 
     try:
         db.add(click_data)
@@ -87,48 +121,62 @@ def redirect_url(short_code: str, db: Session, user: UserModel):
             detail="Required Unique Constrant...........",
         )
 
-    return data.original_url
+    return cached_url["original_url"]
 
 
 def get_url_detail(url_id: int, db: Session, user: UserModel):
-    data: UserModel = db.query(UrlModel).filter(UrlModel.id == url_id).first()
+    url : UrlModel = (
+        db.query(UrlModel)
+        .filter(UrlModel.id == url_id)
+        .first()
+    )
 
-    if data.id != user.id:
+    if not url:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Not Authorized"
-        )
-    if not data:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="url not found............."
+            status_code=404,
+            detail="URL not found"
         )
 
-    return data
+    if url.user_id != user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="Not authorized to access this URL"
+        )
+
+    return url
 
 
 def get_all_url(db: Session, user: UserModel):
-    data = db.query(UrlModel).all()
+    url = db.query(UrlModel).all()
 
-    return data
+    return url
 
 
 def deactivate_url(url_id: int, db: Session, user: UserModel):
-    data: UrlModel = db.query(UrlModel).filter(UrlModel.id == url_id).first()
-    if data.id != user.id:
+    url : UrlModel = (
+        db.query(UrlModel)
+        .filter(UrlModel.id == url_id)
+        .first()
+    )
+
+    if not url:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Not Authorized"
-        )
-    if not data:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Url Not Found..................",
+            status_code=404,
+            detail="URL not found"
         )
 
-    data.is_active = False
+    if url.user_id != user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="Not authorized to access this URL"
+        )
+
+    url.is_active = False
 
     db.commit()
-    db.refresh(data)
+    db.refresh(url)
 
-    return data
+    return url
 
 
 def get_my_urls(page: int, limit: int, user: UserModel, db: Session):
@@ -144,16 +192,21 @@ def get_my_urls(page: int, limit: int, user: UserModel, db: Session):
 
 
 def get_analytics(url_id: int, db: Session, user: UserModel):
-    url = (
+    
+    url : UrlModel = (
         db.query(UrlModel)
-        .filter(UrlModel.id == url_id, UrlModel.user_id == user.id)
+        .filter(UrlModel.id == url_id)
         .first()
     )
+    
     if not url:
         raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="URL not found"
-    )
+            status_code=status.HTTP_404_NOT_FOUND, detail="URL not found"
+        )
+    if url.user_id != user.id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized"
+        )
     count = db.query(ClickModel).filter(ClickModel.url_id == url_id).count()
 
-    return {"url_id" : url_id,"total_clicks" : count}
+    return {"url_id": url_id, "total_clicks": count}
