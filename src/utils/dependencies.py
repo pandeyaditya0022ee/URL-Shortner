@@ -8,6 +8,7 @@ from src.utils.security import verify_jwt_token
 from src.models.user import UserModel
 from fastapi import Request, HTTPException, status
 from src.utils.redis_client import redis_client
+from src.utils.logger import logger
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
@@ -47,6 +48,10 @@ def rate_limit(request: Request):
         redis_client.expire(key, 60)
 
     if count > 10:
+        logger.warning(
+            "Rate limit exceeded | ip=%s",
+            ip,
+        )
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail="Too many requests"

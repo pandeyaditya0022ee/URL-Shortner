@@ -18,8 +18,8 @@ def create_url(body : UrlSchema,db : Session = Depends(get_db),user: UserModel =
     
 
 @url_router.get("/redirect/{short_code}",status_code=status.HTTP_307_TEMPORARY_REDIRECT)
-def redirect_url(short_code : str,db : Session = Depends(get_db),user: UserModel = Depends(is_authenticated),_ : None = Depends(rate_limit)):
-    url = url_service.redirect_url(short_code,db,user)
+def redirect_url(short_code : str,db : Session = Depends(get_db),_ : None = Depends(rate_limit)):
+    url = url_service.redirect_url(short_code,db)
     
     return RedirectResponse(url=url)
     
@@ -28,9 +28,6 @@ def redirect_url(short_code : str,db : Session = Depends(get_db),user: UserModel
 def get_url_detail(url_id : int, db : Session = Depends(get_db),user: UserModel = Depends(is_authenticated)):
     return url_service.get_url_detail(url_id,db,user)
 
-@url_router.get("/all",response_model=List[UrlResponseSchema],status_code=status.HTTP_200_OK)
-def get_all_url(db:Session = Depends(get_db),user: UserModel = Depends(is_authenticated)):
-    return url_service.get_all_url(db,user)
 
 @url_router.patch("/deactivate/{url_id}",status_code=status.HTTP_200_OK,response_model=UrlResponseSchema)
 def deactivate_url(url_id : int,db : Session = Depends(get_db),user: UserModel = Depends(is_authenticated)):

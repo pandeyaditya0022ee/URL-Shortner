@@ -1,0 +1,48 @@
+services:
+  app:
+    build: .
+    container_name: url_shortener_app
+    env_file:
+      - .env
+
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+
+    ports:
+      - "8000:8000"
+
+    volumes:
+      - ./alembic/versions:/app/alembic/versions
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started  
+  
+  postgres:
+    image: postgres:16
+    container_name: url_shortener_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 742853
+      POSTGRES_DB: url_shortener
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d url_shortener"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7
+    container_name: url_shortener_redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:

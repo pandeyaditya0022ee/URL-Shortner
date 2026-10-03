@@ -5,6 +5,7 @@ from sqlalchemy import pool
 from src.utils.settings import settings
 from src.models.url import UrlModel
 from src.models.user import UserModel
+from src.models.click import ClickModel
 from src.utils.db import Base
 
 from alembic import context
