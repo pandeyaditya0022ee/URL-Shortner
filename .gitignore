@@ -1,4 +1,4 @@
-.env.prod
+.env.render
 push.bat
 migrate.bat
 .env

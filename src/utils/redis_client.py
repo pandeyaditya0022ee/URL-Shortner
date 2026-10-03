@@ -1,8 +1,12 @@
-import os
 import redis
 
+from src.utils.settings import settings
+
+
 redis_client = redis.Redis(
-    host=os.getenv("REDIS_HOST", "localhost"),
-    port=int(os.getenv("REDIS_PORT", 6379)),
+    host=settings.REDIS_HOST,
+    port=settings.REDIS_PORT,
+    password=settings.REDIS_PASSWORD,
+    ssl=settings.REDIS_SSL,
     decode_responses=True,
 )
