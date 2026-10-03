@@ -1,110 +1,152 @@
 
 # 🔗 URL Shortener API
 
-A production-oriented URL Shortener REST API built with **FastAPI**, **PostgreSQL**, **SQLAlchemy**, **Alembic**, **Redis**, **JWT Authentication**, **Pytest**, and **Docker**.
+A production-ready URL Shortener API built with **FastAPI**, **PostgreSQL**, **Redis**, **SQLAlchemy**, and **JWT authentication**.
 
-The project provides authenticated URL management, short-code based redirection, URL expiration, deactivation, click analytics, Redis caching, IP-based rate limiting, database migrations, automated testing, and containerized development.
-
----
-
-## ✨ Features
-
-- 🔐 JWT-based authentication
-- 👤 User registration and login
-- 🔑 Password hashing with Argon2
-- 🔗 Unique short URL generation
-- ↗️ Short URL redirection
-- ⏳ URL expiration support
-- 🚫 URL deactivation
-- 👤 User ownership validation
-- 📊 Click analytics
-- ⚡ Redis caching
-- 🛡️ Redis-based IP rate limiting
-- 📄 Pagination for user URLs
-- 🗄️ PostgreSQL database
-- 🔄 Alembic database migrations
-- 📝 Application logging
-- 🧪 Automated testing with Pytest
-- 📈 Approximately 90% test coverage
-- 🐳 Dockerized application
-- 🐘 Dockerized PostgreSQL
-- 🔴 Dockerized Redis
-- 📚 Automatic Swagger/OpenAPI documentation
+The project includes URL expiration, Redis caching, rate limiting, click analytics, database migrations, automated testing, Dockerization, CI, and cloud deployment.
 
 ---
 
-# 🛠️ Tech Stack
+## 🚀 Live API
 
-| Technology | Purpose |
-|---|---|
-| **FastAPI** | REST API framework |
-| **Python** | Backend programming language |
-| **PostgreSQL** | Relational database |
-| **SQLAlchemy** | ORM |
-| **Alembic** | Database migrations |
-| **Redis** | Caching and rate limiting |
-| **JWT** | Authentication |
-| **Pydantic** | Request/response validation |
-| **Argon2** | Password hashing |
-| **Pytest** | Automated testing |
-| **pytest-cov** | Test coverage |
-| **Docker** | Containerization |
-| **Docker Compose** | Multi-container orchestration |
-| **Uvicorn** | ASGI server |
+**Live API:** `https://url-shortner-39ip.onrender.com`
+
+### Health Check
+
+```text
+GET /health
+```
+
+Example response:
+
+```json
+{
+  "status": "healthy",
+  "database": "healthy",
+  "redis": "healthy"
+}
+```
+
+> Replace `YOUR-RENDER-URL.onrender.com` with your actual Render URL.
+
+---
+
+# ✨ Features
+
+### 🔐 Authentication
+
+- User registration
+- User login
+- JWT-based authentication
+- Password hashing using Argon2
+- Protected API endpoints
+- User-specific URL management
+
+### 🔗 URL Shortening
+
+- Generate unique short URLs
+- Redirect short URLs to original URLs
+- Public redirect endpoint
+- URL ownership
+- URL activation/deactivation
+- URL expiration support
+
+### ⚡ Redis
+
+- Redis-based URL caching
+- Cache-aside pattern
+- Redis-backed rate limiting
+- Cache TTL
+- Production Redis using Upstash
+
+### 📊 Analytics
+
+- Track URL clicks
+- Store click timestamps
+- URL-specific analytics
+- Total click count
+
+### 🗄️ Database
+
+- PostgreSQL
+- SQLAlchemy ORM
+- Alembic migrations
+- Foreign-key relationships
+- Separate test database
+
+### 🛡️ Security
+
+- JWT authentication
+- Argon2 password hashing
+- Trusted Host middleware
+- Security headers
+- Environment-based secrets
+- Redis rate limiting
+- Protected management endpoints
+
+### 🧪 Testing
+
+- Pytest
+- API tests
+- Authentication tests
+- Redis tests
+- Rate-limit tests
+- ~90% test coverage
+- Separate PostgreSQL test database
+
+### 🐳 DevOps
+
+- Docker
+- Docker Compose
+- Non-root Docker container
+- GitHub Actions CI
+- Automated Alembic migrations
+- Cloud deployment
+
+### ☁️ Production Deployment
+
+The application is deployed using:
+
+- **Render** — FastAPI application
+- **Neon** — PostgreSQL
+- **Upstash** — Redis
+- HTTPS provided by Render
 
 ---
 
 # 🏗️ Architecture
 
 ```text
-                         ┌───────────────┐
-                         │     Client    │
-                         │   Postman /   │
-                         │    Browser    │
-                         └───────┬───────┘
-                                 │
-                                 ▼
-                         ┌───────────────┐
-                         │    FastAPI    │
-                         │      API      │
-                         └───────┬───────┘
-                                 │
-              ┌──────────────────┼──────────────────┐
-              │                  │                  │
-              ▼                  ▼                  ▼
-       ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-       │ PostgreSQL  │    │    Redis    │    │    JWT      │
-       │             │    │             │    │    Auth     │
-       │ Users       │    │ URL Cache   │    │             │
-       │ URLs        │    │ Rate Limit  │    │             │
-       │ Clicks      │    │             │    │             │
-       └─────────────┘    └─────────────┘    └─────────────┘
-              │
-              ▼
-       ┌─────────────┐
-       │ SQLAlchemy  │
-       │    ORM      │
-       └──────┬──────┘
-              │
-              ▼
-       ┌─────────────┐
-       │   Alembic   │
-       │  Migration  │
-       └─────────────┘
+                         ┌──────────────────┐
+                         │      Client      │
+                         │   Browser/Postman│
+                         └────────┬─────────┘
+                                  │
+                                  │ HTTPS
+                                  ▼
+                         ┌──────────────────┐
+                         │      Render      │
+                         │    FastAPI API   │
+                         └────────┬─────────┘
+                                  │
+                     ┌────────────┴────────────┐
+                     │                         │
+                     ▼                         ▼
+             ┌────────────────┐       ┌────────────────┐
+             │      Neon      │       │    Upstash     │
+             │   PostgreSQL   │       │     Redis      │
+             └────────────────┘       └────────────────┘
 ```
 
 ---
 
-# 📁 Project Structure
+# 🧱 Project Structure
 
 ```text
-url_shortner/
+URL-Shortner/
 │
 ├── src/
-│   ├── __init__.py
-│   │
 │   ├── models/
-│   │   ├── __init__.py
 │   │   ├── user.py
 │   │   ├── url.py
 │   │   └── click.py
@@ -115,7 +157,8 @@ url_shortner/
 │   │
 │   ├── routes/
 │   │   ├── auth.py
-│   │   └── url.py
+│   │   ├── url.py
+│   │   └── health.py
 │   │
 │   ├── services/
 │   │   ├── auth_service.py
@@ -127,7 +170,9 @@ url_shortner/
 │       ├── settings.py
 │       ├── dependencies.py
 │       ├── redis_client.py
-│       └── logger.py
+│       ├── logger.py
+│       ├── exceptions.py
+│       └── security_headers.py
 │
 ├── tests/
 │   ├── conftest.py
@@ -144,10 +189,9 @@ url_shortner/
 │
 ├── main.py
 ├── alembic.ini
+├── requirements.txt
 ├── Dockerfile
 ├── docker-compose.yml
-├── requirements.txt
-├── .dockerignore
 ├── .env.example
 ├── .gitignore
 └── README.md
@@ -155,78 +199,104 @@ url_shortner/
 
 ---
 
-# 🔐 Authentication
+# 🛠️ Tech Stack
 
-The API uses **JWT-based authentication**.
-
-The authentication flow is:
-
-```text
-                Registration
-                     │
-                     ▼
-              Password Hashing
-                     │
-                     ▼
-                PostgreSQL
-                     │
-                     │
-                  Login
-                     │
-                     ▼
-              Verify Password
-                     │
-                     ▼
-                Generate JWT
-                     │
-                     ▼
-              Access Protected
-                  Endpoints
-```
-
-Protected endpoints require:
-
-```http
-Authorization: Bearer <access_token>
-```
-
-Passwords are never stored as plaintext. They are hashed before being stored in PostgreSQL.
+| Category | Technology |
+|---|---|
+| Backend | FastAPI |
+| Language | Python 3.12 |
+| Database | PostgreSQL |
+| ORM | SQLAlchemy |
+| Migrations | Alembic |
+| Cache | Redis |
+| Production Redis | Upstash |
+| Production Database | Neon |
+| Authentication | JWT |
+| Password Hashing | Argon2 |
+| Validation | Pydantic |
+| Testing | Pytest |
+| Coverage | pytest-cov |
+| Containerization | Docker |
+| CI | GitHub Actions |
+| Deployment | Render |
 
 ---
 
-# 📡 API Endpoints
+# 🔐 Authentication Flow
 
-## 🔐 Authentication
+```text
+User
+ │
+ │ Register
+ ▼
+POST /auth/register
+ │
+ ▼
+Password hashed using Argon2
+ │
+ ▼
+PostgreSQL
+```
 
-### Register User
+Login:
+
+```text
+User
+ │
+ │ username + password
+ ▼
+POST /auth/login
+ │
+ ▼
+Verify password
+ │
+ ▼
+Generate JWT
+ │
+ ▼
+Return access token
+```
+
+Protected requests:
+
+```text
+Client
+ │
+ │ Authorization: Bearer <JWT>
+ ▼
+FastAPI
+ │
+ ▼
+JWT verification
+ │
+ ▼
+Current User
+ │
+ ▼
+Protected resource
+```
+
+---
+
+# 🔗 API Endpoints
+
+## Authentication
+
+### Register
 
 ```http
 POST /auth/register
 ```
 
-Authentication required:
-
-```text
-No
-```
-
-Example request:
+Example:
 
 ```json
 {
-  "username": "user1",
-  "email": "user1@example.com",
-  "password": "password123"
+  "username": "aditya",
+  "email": "aditya@example.com",
+  "password": "your-password"
 }
 ```
-
-Response:
-
-```text
-201 Created
-```
-
----
 
 ### Login
 
@@ -234,329 +304,200 @@ Response:
 POST /auth/login
 ```
 
-Authentication required:
-
-```text
-No
-```
-
-Example request:
+Example:
 
 ```json
 {
-  "username": "user1",
-  "password": "password123"
+  "username": "aditya",
+  "password": "your-password"
 }
 ```
 
-Response:
-
-```text
-200 OK
-```
-
-The response contains a JWT access token.
+Returns an access token.
 
 ---
 
-# 🔗 URL Management
+# 🔗 URL Endpoints
 
-All URL-management endpoints require JWT authentication.
-
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/url/urls` | Create a short URL |
-| `GET` | `/url/redirect/{short_code}` | Redirect using short code |
-| `GET` | `/url/detail/{url_id}` | Get URL details |
-| `GET` | `/url/all` | Get URLs |
-| `GET` | `/url/my-urls` | Get authenticated user's URLs |
-| `PATCH` | `/url/deactivate/{url_id}` | Deactivate a URL |
-| `GET` | `/url/analytics/{url_id}` | Get URL analytics |
-
----
-
-## ➕ Create Short URL
+### Create Short URL
 
 ```http
 POST /url/urls
-Authorization: Bearer <access_token>
+Authorization: Bearer <token>
 ```
 
-Creates a new shortened URL for the authenticated user.
-
-Response:
-
-```text
-201 Created
-```
-
----
-
-## ↗️ Redirect to Original URL
+### Redirect
 
 ```http
 GET /url/redirect/{short_code}
-Authorization: Bearer <access_token>
 ```
 
-Response:
-
-```text
-307 Temporary Redirect
-```
-
-The redirect flow uses Redis caching before querying PostgreSQL.
-
-The endpoint also performs:
-
-- URL existence validation
-- Active status validation
-- Expiration validation
-- Click recording
-- Rate limiting
-
----
-
-## 🔎 Get URL Details
-
-```http
-GET /url/detail/{url_id}
-Authorization: Bearer <access_token>
-```
-
-Returns details for a URL owned by the authenticated user.
-
-Response:
-
-```text
-200 OK
-```
-
----
-
-## 📋 Get All URLs
-
-```http
-GET /url/all
-Authorization: Bearer <access_token>
-```
-
-Returns URLs according to the application's URL service logic.
-
-Response:
-
-```text
-200 OK
-```
-
----
-
-## 📑 Get My URLs
-
-```http
-GET /url/my-urls
-Authorization: Bearer <access_token>
-```
-
-Supports pagination.
-
-### Query Parameters
-
-| Parameter | Default | Constraint |
-|---|---:|---|
-| `page` | `1` | `>= 1` |
-| `limit` | `10` | `1 - 50` |
+This endpoint is **public**.
 
 Example:
 
-```http
-GET /url/my-urls?page=1&limit=10
+```text
+GET /url/redirect/aB92xK
 ```
 
----
+The API redirects the user to the original URL.
 
-## 🚫 Deactivate URL
+### URL Details
+
+```http
+GET /url/detail/{url_id}
+Authorization: Bearer <token>
+```
+
+### Get All URLs
+
+```http
+GET /url/all
+Authorization: Bearer <token>
+```
+
+### Get My URLs
+
+```http
+GET /url/my-urls?page=1&limit=10
+Authorization: Bearer <token>
+```
+
+### Deactivate URL
 
 ```http
 PATCH /url/deactivate/{url_id}
-Authorization: Bearer <access_token>
+Authorization: Bearer <token>
 ```
 
-Deactivates a URL owned by the authenticated user.
-
-Response:
-
-```text
-200 OK
-```
-
----
-
-## 📊 URL Analytics
+### Analytics
 
 ```http
 GET /url/analytics/{url_id}
-Authorization: Bearer <access_token>
+Authorization: Bearer <token>
 ```
 
-Returns click analytics for the requested URL.
+### Health Check
 
-Response:
-
-```text
-200 OK
+```http
+GET /health
 ```
-
-Each successful redirect creates a click record.
 
 ---
 
 # ⚡ Redis Caching
 
-Redis is used to reduce repeated database queries for frequently accessed short URLs.
-
-The cache follows a **cache-aside** strategy.
-
-```text
-                  Request
-                     │
-                     ▼
-                 Redis GET
-                     │
-             ┌───────┴───────┐
-             │               │
-           CACHE HIT      CACHE MISS
-             │               │
-             │               ▼
-             │          PostgreSQL
-             │               │
-             │               ▼
-             │          Store in Redis
-             │               │
-             └───────┬───────┘
-                     ▼
-              Validate URL
-                     │
-                     ▼
-               Record Click
-                     │
-                     ▼
-                 Redirect
-```
-
-Cache keys follow the pattern:
-
-```text
-url:{short_code}
-```
-
-Cached URL information includes:
-
-- URL ID
-- Original URL
-- Active status
-- Expiration time
-
-Cached entries use a TTL to prevent stale data from remaining indefinitely.
-
----
-
-# 🛡️ Rate Limiting
-
-Redis is also used for IP-based rate limiting.
-
-The redirect endpoint maintains a request counter using the client's IP address.
-
-```text
-Incoming Request
-       │
-       ▼
-   Client IP
-       │
-       ▼
-Redis INCR
-       │
-       ▼
-Check Request Count
-       │
-    ┌──┴──┐
-    │     │
- Allowed  Limit Exceeded
-    │          │
-    ▼          ▼
- Process      429
- Request      Too Many Requests
-```
-
-The rate-limit key automatically expires after the configured time window.
-
----
-
-# ⏳ URL Expiration
-
-URLs can have an optional expiration time.
-
-During redirection:
+The redirect system uses the **cache-aside pattern**.
 
 ```text
 Request
    │
    ▼
-Find URL
+Redis
    │
-   ▼
-Is Active?
+   ├── HIT ────────► Return cached URL
    │
-   ▼
-Has Expired?
-   │
-   ├── Yes → Reject
-   │
-   └── No
+   └── MISS
         │
         ▼
-     Redirect
+    PostgreSQL
+        │
+        ▼
+    Store in Redis
+        │
+        ▼
+    Redirect
 ```
 
-This validation is performed whether the URL is retrieved from Redis or PostgreSQL.
+Redis key format:
+
+```text
+url:{short_code}
+```
+
+Cached data contains information such as:
+
+```json
+{
+  "id": 1,
+  "original_url": "https://example.com",
+  "is_active": true,
+  "expires_at": null
+}
+```
+
+The cache uses a TTL to prevent stale data from remaining indefinitely.
+
+---
+
+# 🚦 Rate Limiting
+
+The public redirect endpoint uses Redis-based rate limiting.
+
+Current configuration:
+
+```text
+10 requests / IP / 60 seconds
+```
+
+Redis key:
+
+```text
+rate_limit:{ip}
+```
+
+When the limit is exceeded:
+
+```http
+429 Too Many Requests
+```
+
+is returned.
 
 ---
 
 # 📊 Click Analytics
 
-Every successful redirect creates a record in the click table.
+Every successful URL redirect creates a click record.
 
 ```text
-Short URL Request
-       │
-       ▼
-URL Validation
-       │
-       ▼
-Create Click Record
-       │
-       ▼
-PostgreSQL
+Click
+ ├── id
+ ├── url_id
+ └── clicked_at
 ```
 
-The click model stores:
+This allows the application to calculate:
+
+- Total clicks
+- Click history
+- Future time-based analytics
+
+---
+
+# ⏳ URL Expiration
+
+URLs can optionally have an expiration timestamp.
+
+When an expired URL is requested:
 
 ```text
-click_table
-├── id
-├── url_id
-└── clicked_at
+URL
+ ↓
+Check expiration
+ ↓
+Expired
+ ↓
+Reject redirect
 ```
 
-Analytics can then aggregate clicks for a specific URL.
+This prevents expired short URLs from remaining active indefinitely.
 
 ---
 
 # 🗄️ Database Design
 
-The project uses PostgreSQL with SQLAlchemy ORM.
-
-## User Table
+### User
 
 ```text
 user_table
@@ -567,7 +508,7 @@ user_table
 └── created_at
 ```
 
-## URL Table
+### URL
 
 ```text
 url_table
@@ -580,7 +521,7 @@ url_table
 └── user_id
 ```
 
-## Click Table
+### Click
 
 ```text
 click_table
@@ -589,34 +530,26 @@ click_table
 └── clicked_at
 ```
 
-### Relationships
+Relationships:
 
 ```text
 User
  │
- │ 1
- │
- └─────────── N
-             │
-            URL
-             │
-             │ 1
-             │
-             └─────────── N
-                         │
-                        Click
+ └── 1 ──────── N ─── URL
+                       │
+                       └── 1 ──────── N ─── Click
 ```
 
 ---
 
 # 🔄 Database Migrations
 
-**Alembic** is used as the source of truth for database schema changes.
+Alembic is used for database schema management.
 
-Create a new migration:
+Create a migration:
 
 ```bash
-alembic revision --autogenerate -m "migration message"
+alembic revision --autogenerate -m "description"
 ```
 
 Apply migrations:
@@ -625,142 +558,55 @@ Apply migrations:
 alembic upgrade head
 ```
 
-Rollback one migration:
+Rollback:
 
 ```bash
 alembic downgrade -1
 ```
 
-When the Docker application starts, Alembic automatically runs:
+Production containers automatically run:
 
 ```bash
 alembic upgrade head
 ```
 
-before starting Uvicorn.
+before starting the FastAPI server.
 
 ---
 
-# 🧪 Testing
+# 🧪 Running Tests
 
-The project uses **Pytest** for automated testing.
-
-Tests cover:
-
-- User registration
-- Authentication
-- Login
-- JWT authentication
-- URL creation
-- URL redirection
-- URL expiration
-- URL deactivation
-- URL ownership
-- Redis cache hit
-- Redis cache miss
-- Redis TTL
-- Rate limiting
-- Analytics
-
-Run all tests:
+Install dependencies:
 
 ```bash
-pytest
+pip install -r requirements.txt
 ```
 
-Run tests with coverage:
+Run tests:
+
+```bash
+python -m pytest
+```
+
+Run with coverage:
 
 ```bash
 pytest --cov=src --cov-report=term-missing
 ```
 
-The current test suite achieves approximately:
-
-```text
-90% coverage
-```
+The project maintains approximately **90% test coverage**.
 
 ---
 
-# 🐳 Docker
+# 🐳 Run Locally with Docker
 
-The project is fully containerized using Docker Compose.
-
-The application consists of three services:
-
-```text
-┌─────────────────────────────┐
-│       Docker Compose        │
-│                             │
-│  ┌─────────┐                │
-│  │ FastAPI │                │
-│  │   App   │                │
-│  └────┬────┘                │
-│       │                     │
-│  ┌────┴────┐    ┌────────┐ │
-│  │Postgres │    │ Redis  │ │
-│  └─────────┘    └────────┘ │
-│                             │
-└─────────────────────────────┘
-```
-
----
-
-# 🚀 Running the Project
-
-## Prerequisites
-
-Make sure you have installed:
-
-- Python 3.12+
-- Docker
-- Docker Compose
-- Git
-
----
-
-## 1. Clone the Repository
-
-```bash
-git clone <your-repository-url>
-cd url_shortner
-```
-
----
-
-## 2. Create Environment File
-
-Create a `.env` file from the provided example:
-
-```bash
-cp .env.example .env
-```
-
-Configure your environment variables.
-
-Example:
-
-```env
-DB_CONNECTION=postgresql://postgres:<password>@postgres:5432/url_shortener
-
-JWT_SECRET_KEY=<your-secret-key>
-JWT_ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-
-TEST_DB_CONNECTION=postgresql://postgres:<password>@localhost:5432/url_shortener_test
-```
-
-> Never commit `.env` or production secrets to GitHub.
-
----
-
-## 3. Start the Application
+Start the complete local stack:
 
 ```bash
 docker compose up --build
 ```
 
-Docker Compose starts:
+This starts:
 
 ```text
 FastAPI
@@ -768,246 +614,221 @@ PostgreSQL
 Redis
 ```
 
-Alembic automatically applies pending migrations before FastAPI starts.
+API:
 
----
+```text
+http://localhost:8000
+```
 
-## 4. Open Swagger Documentation
-
-Once the application is running:
+Swagger documentation:
 
 ```text
 http://localhost:8000/docs
 ```
 
-FastAPI also provides the OpenAPI specification:
+Health check:
 
 ```text
-http://localhost:8000/openapi.json
+http://localhost:8000/health
 ```
 
----
-
-# 📝 Environment Variables
-
-| Variable | Description |
-|---|---|
-| `DB_CONNECTION` | PostgreSQL connection string |
-| `TEST_DB_CONNECTION` | PostgreSQL test database connection |
-| `JWT_SECRET_KEY` | Secret used for JWT signing |
-| `JWT_ALGORITHM` | JWT signing algorithm |
-| `ACCESS_TOKEN_EXPIRE_MINUTES` | JWT expiration duration |
-
-Use `.env.example` as the template for local configuration.
-
----
-
-# 🔒 Security Considerations
-
-The project implements several security mechanisms:
-
-### Password Security
-
-Passwords are hashed before storage using Argon2.
-
-### JWT Authentication
-
-Protected endpoints require a valid JWT access token.
-
-### Authorization
-
-URL ownership is checked before performing protected URL operations.
-
-### Rate Limiting
-
-Redis-based rate limiting helps restrict excessive requests.
-
-### Environment Variables
-
-Sensitive configuration is kept outside the source code using environment variables.
-
-### Database Constraints
-
-Foreign keys and unique constraints help maintain data integrity.
-
----
-
-# 📝 Logging
-
-The application uses Python's logging system for application-level logging.
-
-Important operations include logging information around:
-
-- URL creation
-- Redis cache hits
-- Redis cache misses
-
-Logs can be viewed through Docker:
+Stop containers:
 
 ```bash
-docker compose logs app
+docker compose down
 ```
 
 ---
 
-# 🧩 Service Layer Architecture
+# ⚙️ Environment Variables
 
-The project separates API routes from business logic.
+Create a `.env` file for local development.
 
-```text
-Request
-   │
-   ▼
-Route
-   │
-   ▼
-Service Layer
-   │
-   ├──────────────┐
-   ▼              ▼
-Database        Redis
+Example:
+
+```env
+DB_CONNECTION=postgresql://postgres:password@localhost:5432/url_shortener
+
+SECRET_KEY=your-secret-key
+ALGORITHM=HS256
+
+TEST_DB_CONNECTION=postgresql://postgres:password@localhost:5432/url_shortener_test
+
+EXPIRATION_TIME=30
+
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
+REDIS_SSL=false
+
+CORS_ORIGINS=*
+ALLOWED_HOSTS=localhost,127.0.0.1
 ```
 
-For example:
+Production credentials should be configured through the hosting platform's environment variables.
 
-```text
-src/routes/url.py
-        │
-        ▼
-src/services/url_service.py
-        │
-        ├── PostgreSQL
-        │
-        └── Redis
-```
-
-This keeps route handlers lightweight and separates business logic from HTTP-specific code.
+**Never commit `.env` or production secrets to GitHub.**
 
 ---
 
-# 🧪 Test Database
+# 🔒 Security
 
-Tests use a separate PostgreSQL database instead of the development database.
+The project implements several security practices:
 
-```text
-Application
-     │
-     ▼
-Development DB
-
-Tests
-     │
-     ▼
-Test DB
-```
-
-FastAPI's database dependency is overridden during testing so that tests operate against the dedicated test database.
-
-Redis state is also cleaned where required to prevent rate-limit and cache state from leaking between tests.
+- JWT authentication
+- Argon2 password hashing
+- Environment-based secret management
+- Trusted Host middleware
+- Security response headers
+- Redis-based rate limiting
+- Protected URL management endpoints
+- Public redirect endpoint separated from management APIs
+- Non-root Docker container
+- Secrets excluded from Git
 
 ---
 
-# 📈 Project Metrics
+# 📋 CI Pipeline
 
-Current project characteristics:
+GitHub Actions automatically runs the test suite on pushes and pull requests.
 
 ```text
-Backend Framework      → FastAPI
-Database               → PostgreSQL
-ORM                    → SQLAlchemy
-Cache                  → Redis
-Authentication         → JWT
-Password Hashing       → Argon2
-Migration Tool         → Alembic
-Testing                → Pytest
-Coverage               → ~90%
-Containerization       → Docker
-Orchestration          → Docker Compose
+Git Push / Pull Request
+          │
+          ▼
+    GitHub Actions
+          │
+          ├── Python setup
+          ├── Install dependencies
+          ├── PostgreSQL service
+          ├── Redis service
+          └── Run Pytest + Coverage
 ```
 
 ---
 
-# 🎯 Engineering Concepts Demonstrated
+# ☁️ Production Architecture
 
-This project was built to practice practical backend engineering concepts including:
+The deployed architecture uses managed infrastructure:
+
+```text
+                         Internet
+                            │
+                            ▼
+                     Render HTTPS
+                            │
+                            ▼
+                    ┌──────────────┐
+                    │   FastAPI    │
+                    │    Docker    │
+                    └──────┬───────┘
+                           │
+              ┌────────────┴────────────┐
+              │                         │
+              ▼                         ▼
+       ┌──────────────┐          ┌──────────────┐
+       │     Neon     │          │    Upstash   │
+       │  PostgreSQL  │          │     Redis    │
+       └──────────────┘          └──────────────┘
+```
+
+### Production services
+
+**Application**
+
+```text
+Render
+```
+
+**Database**
+
+```text
+Neon PostgreSQL
+```
+
+**Redis**
+
+```text
+Upstash Redis
+```
+
+---
+
+# 🧠 Engineering Concepts Demonstrated
+
+This project was built to understand practical backend engineering concepts including:
 
 - REST API design
-- Authentication and authorization
-- Password hashing
-- JWT tokens
+- Layered architecture
+- Service layer pattern
 - Dependency injection
+- Authentication and authorization
+- JWT
+- Password hashing
 - SQLAlchemy ORM
-- PostgreSQL relationships
-- Database constraints
+- PostgreSQL
 - Database migrations
-- Redis caching
 - Cache-aside pattern
+- Redis
 - Rate limiting
-- Pagination
 - URL expiration
-- Click analytics
-- Service-layer architecture
+- Analytics
+- Centralized exception handling
+- Structured logging
+- Health checks
 - Automated testing
 - Test database isolation
-- Docker containerization
-- Multi-container orchestration
+- Docker
+- CI/CD
+- Cloud deployment
 - Environment-based configuration
-- Application logging
 
 ---
 
-# 🚧 Future Improvements
+# 🚀 Future Improvements
 
 Possible future improvements include:
 
-- [ ] GitHub Actions CI/CD
-- [ ] Production deployment
-- [ ] Health-check endpoint
-- [ ] Structured JSON logging
-- [ ] Advanced analytics
-- [ ] QR code generation
-- [ ] Custom short aliases
-- [ ] API versioning
-- [ ] Background jobs
-- [ ] Monitoring and metrics
-- [ ] Reverse proxy configuration
-- [ ] Improved Redis failure handling
-- [ ] Production-grade deployment configuration
+- Custom short codes
+- QR code generation
+- Advanced click analytics
+- Geographic analytics
+- Device/browser analytics
+- Background jobs
+- Celery/RQ integration
+- API versioning
+- Prometheus metrics
+- Grafana monitoring
+- Distributed rate limiting
+- Custom domains
+- Frontend dashboard
+- OpenAPI documentation improvements
 
 ---
 
-# 📌 Project Status
+# 📌 Project Highlights
 
 ```text
-Core API                 ✅
-Authentication           ✅
-PostgreSQL               ✅
-SQLAlchemy               ✅
-Alembic                  ✅
-Redis Cache              ✅
-Rate Limiting            ✅
-Click Analytics          ✅
-URL Expiration           ✅
-URL Deactivation         ✅
-Pagination               ✅
-Testing                  ✅
-~90% Coverage            ✅
-Docker                   ✅
-Docker Compose           ✅
-API Documentation        ✅
+Backend Framework     → FastAPI
+Database              → PostgreSQL
+Cache                 → Redis
+Authentication        → JWT
+Password Hashing      → Argon2
+ORM                   → SQLAlchemy
+Migration             → Alembic
+Testing               → Pytest
+Containerization      → Docker
+CI                    → GitHub Actions
+Cloud                  → Render
+Managed PostgreSQL    → Neon
+Managed Redis         → Upstash
 ```
 
 ---
 
 # 👨‍💻 Author
 
-**Aditya Kumar Pandey**
+**Aditya Pandey**
 
-Backend engineering project focused on building a production-oriented URL shortening service with FastAPI, PostgreSQL, Redis, authentication, testing, migrations, and Docker.
-
----
-
-## ⭐ If you found this project useful
-
-Feel free to explore the source code, raise issues, or suggest improvements.
+Built as a backend engineering project to explore production-oriented API development, caching, authentication, database design, testing, containerization, and cloud deployment.
 ```
