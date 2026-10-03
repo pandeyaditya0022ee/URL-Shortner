@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     ALGORITHM: str
     TEST_DB_CONNECTION: str | None = None   
     EXPIRATION_TIME: int
-
+    ALLOWED_HOSTS: str = "localhost,127.0.0.1"
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
     REDIS_PASSWORD: str | None = None

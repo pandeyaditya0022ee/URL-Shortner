@@ -19,10 +19,7 @@ from src.utils.security_headers import SecurityHeadersMiddleware
 app = FastAPI()
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=[
-        "localhost",
-        "127.0.0.1",
-    ],
+    allowed_hosts=settings.ALLOWED_HOSTS.split(","),
 )
 
 app.add_middleware(SecurityHeadersMiddleware)
