@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     DB_CONNECTION: str
     SECRET_KEY: str
     ALGORITHM: str
-    TEST_DB_CONNECTION: str
+    TEST_DB_CONNECTION: str | None = None   
     EXPIRATION_TIME: int
 
     REDIS_HOST: str = "localhost"
